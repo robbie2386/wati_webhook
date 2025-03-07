@@ -60,6 +60,17 @@ def whatsapp_webhook():
 
     return jsonify({"status": "Processed"}), 200
 
+from flask import Flask, request, jsonify
+
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    data = request.json
+    print("Received:", data)
+    return jsonify({"message": "Webhook received"}), 200
+
+
+
 from flask import Flask
 
 app = Flask(__name__)
