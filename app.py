@@ -78,8 +78,11 @@ def whatsapp_webhook():
     return jsonify({"status": "Processed"}), 200
 
 # Webhook untuk pengujian manual
-@app.route('/webhook', methods=['POST'])
+@app.route('/webhook', methods=['GET', 'POST'])
 def webhook():
+    if request.method == 'GET':
+        return jsonify({"message": "Webhook is active"}), 200  # Debugging response
+        
     data = request.json
     print("Received data from API Test:", data)
     return jsonify({"message": "Webhook received"}), 200
