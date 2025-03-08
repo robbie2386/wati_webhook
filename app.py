@@ -41,6 +41,47 @@ def analyze_image(image_url):
 
 # Fungsi untuk mengirim pesan ke WhatsApp melalui Wati.io
 def send_message(phone_number, message_text):
+    url = "https://wati.io/api/v1/sendSessionMessage"
+    headers = {
+        "Authorization": f"Bearer {WATI_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "number": phone_number,
+        "message": message_text
+    }
+
+    print("Mengirim pesan ke:", phone_number)
+    print("Isi pesan:", message_text)
+
+    response = requests.post(url, json=payload, headers=headers)
+
+    if response.status_code != 200:
+        print("Error sending message:", response.json())
+    else:
+        print("Pesan berhasil dikirim:", response.json())
+
+# Webhook WhatsApp untuk menerima pesan dari Wati.io
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    data = request.json
+    print("Pesan diterima:", data)
+
+    if "waId" in data and "text" in data:
+        phone_number = data["waId"]
+        message_text = data["text"]
+
+        # Kirim balasan ke pengirim
+        send_message(phone_number, f"Halo! Kamu berkata: {message_text}")
+
+    return jsonify({"status": "Processed"}), 200
+
+# Tes webhook di browser
+@app.route('/test', methods=['GET'])
+def test():
+    return jsonify({"message": "Webhook is active"}), 200
+# Fungsi untuk mengirim pesan ke WhatsApp melalui Wati.io
+def send_message(phone_number, message_text):
     headers = {
         "Authorization": f"Bearer {WATI_API_KEY}",
         "Content-Type": "application/json"
