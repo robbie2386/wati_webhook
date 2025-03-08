@@ -41,27 +41,34 @@ def analyze_image(image_url):
 
 # Fungsi untuk mengirim pesan ke WhatsApp melalui Wati.io
 def send_message(phone_number, message_text):
-    url = "https://wati.io/api/v1/sendSessionMessage"
+    url = "https://live-mt-server.wati.io/411177/api/v1/sendSessionMessage"  # Ganti dengan endpoint WATI kamu
     headers = {
         "Authorization": f"Bearer {WATI_API_KEY}",
         "Content-Type": "application/json"
     }
     payload = {
-        "number": phone_number,
+        "chatId": f"{phone_number}@c.us",
         "message": message_text
     }
 
-    print(f"Mengirim pesan ke: {phone_number}")
-    print(f"Isi pesan: {message_text}")
+    print(f"🚀 Mengirim pesan ke: {phone_number}")
+    print(f"📩 Isi pesan: {message_text}")
 
     try:
         response = requests.post(url, json=payload, headers=headers)
+        print("✅ Respons dari WATI:", response.text)  # Debugging untuk melihat hasil API call
+
         if response.status_code != 200:
-            print("Error sending message:", response.json())
+            print("❌ ERROR: Gagal mengirim pesan. Response:", response.text)
         else:
-            print("Pesan berhasil dikirim:", response.json())
-    except Exception as e:
-        print("Error saat mengirim pesan:", str(e))
+            try:
+                response_json = response.json()
+                print("✅ Pesan berhasil dikirim:", response_json)
+            except ValueError:
+                print("⚠️ ERROR: API WATI mengembalikan response kosong atau tidak valid")
+
+    except requests.exceptions.RequestException as e:
+        print("⚠️ ERROR: Koneksi ke API WATI gagal:", str(e))
 
 # Webhook WhatsApp untuk menerima pesan dari Wati.io
 @app.route('/webhook', methods=['GET', 'POST'])
