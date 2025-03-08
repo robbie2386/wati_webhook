@@ -61,7 +61,7 @@ def send_message(phone_number, message_text):
         print("Error sending message:", response.json())
 
 # Webhook WhatsApp untuk menerima pesan dari Wati.io
-@app.route('/webhook', methods=['POST'])
+@app.route('/webhook', methods=['GET''POST'])
 def webhook():
     data = request.json
     print("Pesan diterima:", data)
