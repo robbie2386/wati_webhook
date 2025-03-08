@@ -41,7 +41,7 @@ def analyze_image(image_url):
 
 # Fungsi untuk mengirim pesan ke WhatsApp melalui Wati.io
 def send_message(phone_number, message_text):
-    url = "https://live-mt-server.wati.io/411177/api/v1/sendSessionMessage"  # Ganti dengan endpoint WATI kamu
+    url = "https://live-server-01.wati.io/api/v1/sendSessionMessage"  # Ganti dengan endpoint WATI yang benar
     headers = {
         "Authorization": f"Bearer {WATI_API_KEY}",
         "Content-Type": "application/json"
@@ -69,6 +69,7 @@ def send_message(phone_number, message_text):
 
     except requests.exceptions.RequestException as e:
         print("⚠️ ERROR: Koneksi ke API WATI gagal:", str(e))
+
 
 # Webhook WhatsApp untuk menerima pesan dari Wati.io
 @app.route('/webhook', methods=['GET', 'POST'])
