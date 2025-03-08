@@ -8,10 +8,6 @@ app = Flask(__name__)
 WATI_API_KEY = os.getenv("WATI_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-const express = require("express");
-const axios = require("axios");
-
-
 # Fungsi untuk analisis gambar dengan GPT-4 Vision
 def analyze_image(image_url):
     headers = {
@@ -69,7 +65,6 @@ def send_message(phone_number, message_text):
 def webhook():
     data = request.json
     print("Pesan diterima:", data)
-    return jsonify({"message": "Webhook received"}), 200
 
     # Logging untuk debug
     print("Received WhatsApp Data:", data)
@@ -77,20 +72,16 @@ def webhook():
     # Jika pesan berisi gambar
     if "message" in data and "image" in data["message"]:
         image_url = data["message"]["image"]["url"]
+        phone_number = data["message"]["from"]  # Nomor pengirim
         result = analyze_image(image_url)
         send_message(phone_number, result)
 
     return jsonify({"status": "Processed"}), 200
 
-# Webhook untuk pengujian manual
-@app.route('/webhook', methods=['GET', 'POST'])
-def webhook():
-    if request.method == 'GET':
-        return jsonify({"message": "Webhook is active"}), 200  # Debugging response
-        
-    data = request.json
-    print("Received data from API Test:", data)
-    return jsonify({"message": "Webhook received"}), 200
+# Webhook untuk pengecekan manual
+@app.route('/test', methods=['GET'])
+def test():
+    return jsonify({"message": "Webhook is active"}), 200
 
 # Route utama untuk memastikan server berjalan
 @app.route('/')
