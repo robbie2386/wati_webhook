@@ -8,6 +8,48 @@ app = Flask(__name__)
 WATI_API_KEY = os.getenv("WATI_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+const express = require("express");
+const axios = require("axios");
+
+const app = express();
+app.use(express.json());
+
+app.post("/webhook", async (req, res) => {
+    try {
+        const { waId, text } = req.body; // Ambil data dari Wati
+
+        console.log("Pesan diterima:", text);
+
+        if (!waId || !text) {
+            return res.status(400).json({ error: "Invalid data received" });
+        }
+
+        // Kirim balasan ke pengirim via Wati API
+        const response = await axios.post(
+            "https://wati.io/api/v1/sendSessionMessage",
+            {
+                number: waId,
+                message: `Halo! Kamu berkata: ${text}`
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer YOUR_WATI_API_KEY`
+                }
+            }
+        );
+
+        console.log("Balasan terkirim:", response.data);
+        res.status(200).json({ success: true });
+
+    } catch (error) {
+        console.error("Error saat mengirim balasan:", error.response ? error.response.data : error.message);
+        res.status(500).json({ error: "Gagal mengirim balasan" });
+    }
+});
+
+app.listen(3000, () => console.log("Webhook aktif di port 3000"));
+
 # Fungsi untuk analisis gambar dengan GPT-4 Vision
 def analyze_image(image_url):
     headers = {
