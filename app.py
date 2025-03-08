@@ -51,55 +51,17 @@ def send_message(phone_number, message_text):
         "message": message_text
     }
 
-    print("Mengirim pesan ke:", phone_number)
-    print("Isi pesan:", message_text)
+    print(f"Mengirim pesan ke: {phone_number}")
+    print(f"Isi pesan: {message_text}")
 
-    response = requests.post(url, json=payload, headers=headers)
-
-    if response.status_code != 200:
-        print("Error sending message:", response.json())
-    else:
-        print("Pesan berhasil dikirim:", response.json())
-
-# Webhook WhatsApp untuk menerima pesan dari Wati.io
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    data = request.json
-    print("Pesan diterima:", data)
-
-    if "waId" in data and "text" in data:
-        phone_number = data["waId"]
-        message_text = data["text"]
-
-        # Kirim balasan ke pengirim
-        send_message(phone_number, f"Halo! Kamu berkata: {message_text}")
-
-    return jsonify({"status": "Processed"}), 200
-
-# Tes webhook di browser
-@app.route('/test', methods=['GET'])
-def test():
-    return jsonify({"message": "Webhook is active"}), 200
-# Fungsi untuk mengirim pesan ke WhatsApp melalui Wati.io
-def send_message(phone_number, message_text):
-    headers = {
-        "Authorization": f"Bearer {WATI_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "to": phone_number,
-        "type": "text",
-        "text": {"body": message_text}
-    }
-
-    response = requests.post(
-        "https://api.wati.io/v1/messages",
-        json=payload,
-        headers=headers
-    )
-
-    if response.status_code != 200:
-        print("Error sending message:", response.json())
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        if response.status_code != 200:
+            print("Error sending message:", response.json())
+        else:
+            print("Pesan berhasil dikirim:", response.json())
+    except Exception as e:
+        print("Error saat mengirim pesan:", str(e))
 
 # Webhook WhatsApp untuk menerima pesan dari Wati.io
 @app.route('/webhook', methods=['GET', 'POST'])
@@ -107,12 +69,19 @@ def webhook():
     if request.method == 'GET':
         return jsonify({"message": "Webhook is active"}), 200
 
+    data = request.json
+    print("Pesan diterima:", data)
 
-    # Logging untuk debug
-    print("Received WhatsApp Data:", data)
+    # Validasi apakah data memiliki "waId" dan "text"
+    if data and "waId" in data and "text" in data:
+        phone_number = data["waId"]
+        message_text = data["text"]
 
+        # Kirim balasan ke pengirim
+        send_message(phone_number, f"Halo! Kamu berkata: {message_text}")
+    
     # Jika pesan berisi gambar
-    if "message" in data and "image" in data["message"]:
+    if data and "message" in data and "image" in data["message"]:
         image_url = data["message"]["image"]["url"]
         phone_number = data["message"]["from"]  # Nomor pengirim
         result = analyze_image(image_url)
